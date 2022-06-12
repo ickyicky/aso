@@ -2,7 +2,7 @@ import torch
 import torch.nn as nn
 
 
-from .unet_parts import DoubleConv
+from .unet_parts import OutConv
 from .unet_model import UNet
 
 

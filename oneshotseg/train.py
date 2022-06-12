@@ -101,7 +101,7 @@ def train_net(
             for batch in train_loader:
                 images = batch["image"]
                 true_masks = batch["mask"]
-                ref = batch["ref"]
+                refs = batch["ref_image"]
 
                 assert images.shape[1] == net.n_channels, (
                     f"Network has been defined with {net.n_channels} input channels, "
@@ -158,7 +158,10 @@ def train_net(
                             {
                                 "learning rate": optimizer.param_groups[0]["lr"],
                                 "validation Dice": val_score,
-                                "images": wandb.Image(images[0].cpu()),
+                                "images": {
+                                    "input": wandb.Image(images[0].cpu()),
+                                    "ref": wandb.Image(refs[0].float().cpu()),
+                                },
                                 "masks": {
                                     "true": wandb.Image(true_masks[0].float().cpu()),
                                     "pred": wandb.Image(
@@ -175,10 +178,10 @@ def train_net(
                         )
 
         if save_checkpoint:
-            Path(dir_checkpoint).mkdir(parents=True, exist_ok=True)
+            Path(checkpoint_dir).mkdir(parents=True, exist_ok=True)
             torch.save(
                 net.state_dict(),
-                str(dir_checkpoint / "checkpoint_epoch{}.pth".format(epoch)),
+                join(checkpoint_dir, "checkpoint_epoch{}.pth".format(epoch)),
             )
             logging.info(f"Checkpoint {epoch} saved!")
 

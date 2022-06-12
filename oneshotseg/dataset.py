@@ -1,4 +1,5 @@
 import logging
+import cv2
 from os import listdir
 from os.path import splitext, join
 from pathlib import Path

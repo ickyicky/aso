@@ -1,6 +1,7 @@
 import argparse
 import torch
 import logging
+import cv2
 from PIL import Image
 from .model import SyameseUNet
 from .utils import plot_img_and_mask
@@ -48,12 +49,7 @@ def predict_img(
 
         full_mask = tf(probs.cpu()).squeeze()
 
-    if net.n_classes == 1:
-        return (full_mask > out_threshold).numpy()
-    else:
-        return (
-            F.one_hot(full_mask.argmax(dim=0), net.n_classes).permute(2, 0, 1).numpy()
-        )
+    return full_mask
 
 
 def get_args():
@@ -120,7 +116,7 @@ if __name__ == "__main__":
     logging.info(f"Using device {device}")
 
     logging.info(f"Loading model {args.model}")
-    net.load_state_dict(torch.load(args.model, map_location=device))
+    net.load_state_dict(torch.load(args.model, map_location=device), strict=False)
     logging.info("Model loaded")
 
     if torch.cuda.is_available():
