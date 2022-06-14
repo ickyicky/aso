@@ -33,21 +33,12 @@ def predict_img(
 
     with torch.no_grad():
         output = net(img, reference)
-
-        if net.n_classes > 1:
-            probs = F.softmax(output, dim=1)[0]
-        else:
-            probs = torch.sigmoid(output)[0]
-
-        tf = transforms.Compose(
-            [
-                transforms.ToPILImage(),
-                transforms.Resize((full_img.size[1], full_img.size[0])),
-                transforms.ToTensor(),
-            ]
+        full_mask = (
+            torch.softmax(output, dim=1)
+            .argmax(dim=1)[0]
+            .float()
+            .cpu()
         )
-
-        full_mask = tf(probs.cpu()).squeeze()
 
     return full_mask
 
@@ -136,3 +127,5 @@ if __name__ == "__main__":
         device=device,
     )
     plot_img_and_mask(img, mask)
+    import pdb
+    pdb.set_trace()
